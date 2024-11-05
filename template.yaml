@@ -124,7 +124,7 @@ spec:
         content: "\n    - https://{{ '${{ parameters.gitlabHost }}' }}/{{ '${{ parameters.gitlabOrganization }}' }}/{{ '${{ parameters.envelopeRepositoryName }}' }}/-/blob/main/{{ '${{ parameters.repositoryName }}' }}/catalog-info.yaml"
 
     # Merge envelope  into EXISTING repo  - only EXISTING REPO
-    - id: publishUberCatalogMergeRequest
+    - id: publishCatalogEnvelopeMergeRequest
       name: Open PR with envelope.yaml
       action: publish:gitlab:merge-request
       input: 
@@ -181,8 +181,8 @@ spec:
 
   output:
     links:
-      - url: {{ '${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}' }}
+      - url: {{ '${{ steps.publishCatalogEnvelopeMergeRequest.output.mergeRequestUrl }}' }}
         title: 'Component merge request'
-      - url: {{ '${{ steps.publishEnvelopeCatalogMergeRequest.output.mergeRequestUrl }}' }}
+      - url: {{ '${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}' }}
         title: 'Catalog Envelope update merge request'
   
