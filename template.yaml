@@ -10,7 +10,7 @@ metadata:
     - register
     - api
 spec:
-  owner: platform-engineers
+  owner: platformengineers
   system: rhdh
   type: template
 
@@ -148,7 +148,6 @@ spec:
         targetPath: ./patch
         values:
           applicationType: "API"
-          applicationType: {{ '${{ parameters.componentType }}' }}
           component_id: {{ '${{ parameters.componentName }}' }}
           componentName: {{ '${{ parameters.componentName }}' }}
           componentLifecycle: {{ '${{ parameters.componentLifecycle }}' }}
