@@ -78,7 +78,7 @@ spec:
           - Other
           allowArbitraryValues: true
 
-    - title: Provide information about the new component for your existing app
+    - title: Provide information about the new component for your existing API
       required:
         - componentOwner
         - lifecycle
