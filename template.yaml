@@ -67,7 +67,7 @@ spec:
           title: Type of API
           type: string
           default: OpenAPI
-          description: Usual types are openapi, 
+          description: Usual types are openapi, grpc, Avro etc
           enum:
           - openapi
           - grpc
