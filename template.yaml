@@ -2,7 +2,7 @@ apiVersion: scaffolder.backstage.io/v1beta3
 kind: Template
 metadata:
   name: import-api-catalog
-  title: Import API to Existing Catalog Envelope
+  title: Import Existing API
   description: Import existing API, autocreate config-info.yaml and conditionally setup techdocs.
   tags:
     - import
