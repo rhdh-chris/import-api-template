@@ -21,7 +21,7 @@ metadata:
   annotations:
     backstage.io/source-location: url:https://${{ values.host }}/parasol/${{ values.repoName }}
     backstage.io/techdocs-ref: url:https://${{ values.host }}/parasol/envelope-parasol-catalog/-/tree/main/${{ values.repoName }}
-    gitlab.com/project-slug: ${{ values.orgName }}/${{ values.repoName }}
+    # gitlab.com/project-slug: ${{ values.orgName }}/${{ values.repoName }}
 
 spec:
   type: ${{ values.apiType }}

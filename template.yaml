@@ -15,11 +15,14 @@ spec:
   type: template
 
   parameters:
-    - title: Provide information about Catalog Envelope to which API will be included
+
+    - title: Information about your existing API
       required:
         - gitlabHost
-        - envelopeGitlabOrganization
-        - envelopeRepositoryName
+        - gitlabOrganization
+        - repositoryName
+        - apiType
+        - apiPathText
       properties:
         gitlabHost:
           title: Gitlab hostname
@@ -28,37 +31,15 @@ spec:
           default: {{ gitlab_host }}
           enum:
             - {{ gitlab_host }}
-        envelopeGitlabOrganization:
-          title: GitLab Organization
-          type: string
-        envelopeRepositoryName:
-          title: Repository name
-          type: string
-          description: Please ensure this repo exists
-
-    - title: Provide information about your existing API
-      required:
-        - gitlabOrganization
-        - repositoryName
-        - system
-        - apiType
-        - apiPathText
-      properties:
         gitlabOrganization:
-          title: GitLab Organization
+          title: GitLab Organization of Existing API
           type: string
+          default: parasol
         repositoryName:
-          title: Repository name
+          title: Repository name of Existing API
           type: string
           description: Please ensure this repo exists
-        system:
-          title: System name
-          description: This is the application name that helps to group components easily
-          type: string
-          ui:field: EntityPicker
-          ui:options:
-            catalogFilter:
-              kind: System
+          default: parasol-store-api
         apiPathText:
           title: API specification path
           description: This will need to be the full path where the API specification is stored in the repository. 
@@ -66,8 +47,8 @@ spec:
         apiType:
           title: Type of API
           type: string
-          default: OpenAPI
-          description: Usual types are openapi, grpc, Avro etc
+          default: openapi
+          description: Usual types are openapi, 
           enum:
           - openapi
           - grpc
@@ -78,20 +59,42 @@ spec:
           - Other
           allowArbitraryValues: true
 
-    - title: Provide information about the new component for your existing API
+    - title: New Component details
       required:
+        - envelopeGitlabOrganization
+        - envelopeRepositoryName
+        - system
         - componentOwner
         - lifecycle
+
       properties:
+        envelopeGitlabOrganization:
+          title: Component GitLab Organization
+          type: string
+          default: parasol
+        envelopeRepositoryName:
+          title: Component Repository name
+          type: string
+          description: Please ensure this repo exists
+          default: envelope-parasol-catalog
         componentName:
-          title: Component Name
+          title: Component Name of the API
           type: string
           description: Name of the component. (Defaults to the repo name)
-          default: 
+          default: parasol-store-api
+        system:
+          title: System name
+          description: This is the application name that helps to group components easily
+          type: string
+          ui:field: EntityPicker
+          ui:options:
+            catalogFilter:
+              kind: System
         componentOwner:
-          title: Owner
+          title: Owner of the API
           description: Select an owner from the list or enter a reference to a Group or a User
           type: string
+          default: group:default/dev1
           ui:field: EntityPicker
           ui:options:
             catalogFilter:
@@ -102,11 +105,17 @@ spec:
           title: A short description of this component
           description: A short description of this component
           type: string
+          default: Open API specification for the parasol-store application
         lifecycle:
           title: Lifecycle
           type: string
           description: 'The lifecycle state of the component. Well-known and common values: experimental, production, deprecated.'
           default: experimental
+          enum:
+          - experimental
+          - production
+          - deprecated
+          - other
 
   steps:
     - id: fetch-envelope=repo
@@ -114,32 +123,10 @@ spec:
       action: fetch:template
       targetPath: ../.
       input:
-        url: https://{{ '${{ parameters.gitlabHost }}' }}/{{ '${{ parameters.gitlabOrganization }}' }}/{{ '${{ parameters.envelopeRepositoryName }}' }}
+        url: https://${{ parameters.gitlabHost }}/${{ parameters.gitlabOrganization }}/${{ parameters.envelopeRepositoryName }}
         
-    - id: append-file
-      name: Append To File Or Create New
-      action: roadiehq:utils:fs:append
-      input:
-        path: ./envelope.yaml
-        content: "\n    - https://{{ '${{ parameters.gitlabHost }}' }}/{{ '${{ parameters.gitlabOrganization }}' }}/{{ '${{ parameters.envelopeRepositoryName }}' }}/-/blob/main/{{ '${{ parameters.repositoryName }}' }}/catalog-info.yaml"
 
-    # Merge envelope  into EXISTING repo  - only EXISTING REPO
-    - id: publishCatalogEnvelopeMergeRequest
-      name: Open PR with envelope.yaml
-      action: publish:gitlab:merge-request
-      input: 
-        repoUrl: "{{ '${{ parameters.gitlabHost }}' }}?repo={{ '${{ parameters.envelopeRepositoryName }}' }}&owner={{ '${{ parameters.envelopeGitlabOrganization }}' }}"
-        commitMessage: Commit for component {{ '${{ parameters.componentName }}' }}'
-        title: Open PR for update to catalog envelope
-        description: Open PR with catalog-info.yaml
-        sourcePath: ./
-        targetPath: ./
-        commitAction: update
-        branchName: envelope-{{ '${{ parameters.componentName }}' }}-update
-        removeSourceBranch: true
-
-
-    # Step2: Create catalog-info file for the component
+    # Step1: Create catalog-info file for the component
     - id: catalogTemplate
       name: Fetch catalog-info  template
       action: fetch:template
@@ -148,18 +135,18 @@ spec:
         targetPath: ./patch
         values:
           applicationType: "API"
-          component_id: {{ '${{ parameters.componentName }}' }}
-          componentName: {{ '${{ parameters.componentName }}' }}
-          componentLifecycle: {{ '${{ parameters.componentLifecycle }}' }}
-          description: {{ '${{ parameters.description }}' }}
-          destination: "{{ '${{ parameters.gitlabHost }}' }}/{{ '${{ parameters.gitlabOrganization }}' }}/{{ '${{ parameters.repositoryName }}' }}"
-          host: {{ '${{ parameters.gitlabHost }}' }}
-          owner: {{ '${{ parameters.componentOwner }}' }}
-          orgName: {{ '${{ parameters.gitlabOrganization }}' }}
-          repoName: {{ '${{ parameters.repositoryName }}' }}
-          system: {{ '${{ parameters.system }}' }}
-          apiType: {{ '${{ parameters.apiType }}' }}
-          apiPathText: {{ '${{ parameters.apiPathText }}' }}
+          component_id: ${{ parameters.componentName }}
+          componentName: ${{ parameters.componentName }}
+          componentLifecycle: ${{ parameters.componentLifecycle }}
+          description: ${{ parameters.description }}
+          destination: "${{ parameters.gitlabHost }}/${{ parameters.gitlabOrganization }}/${{ parameters.repositoryName }}"
+          host: ${{ parameters.gitlabHost }}
+          owner: ${{ parameters.componentOwner }}
+          orgName: ${{ parameters.gitlabOrganization }}
+          repoName: ${{ parameters.repositoryName }}
+          system: ${{ parameters.system }}
+          apiType: ${{ parameters.apiType }}
+          apiPathText: ${{ parameters.apiPathText }}
 
     
     # Merge catalog-info and techdocs into EXISTING repo   - only EXISTING REPO
@@ -167,22 +154,15 @@ spec:
       name: Open PR with for all-catalog
       action: publish:gitlab:merge-request
       input: 
-        repoUrl: "{{ '${{ parameters.gitlabHost }}' }}?repo={{ '${{ parameters.envelopeRepositoryName }}' }}&owner={{ '${{ parameters.gitlabOrganization }}' }}"
+        repoUrl: "${{ parameters.gitlabHost }}?repo=${{ parameters.envelopeRepositoryName }}&owner=${{ parameters.gitlabOrganization }}"
         title: Open PR with catalog-info.yaml
         description: Open PR with catalog-info.yaml
-        branchName: "{{ '${{ parameters.componentName }}' }}-create"
+        branchName: "${{ parameters.componentName }}-create"
         sourcePath: ./patch
-        targetPath: "{{ './${{ parameters.repositoryName }}' }}"
+        targetPath: "./${{ parameters.repositoryName }}"
         commitAction: create
         removeSourceBranch: true    
-
-
-  
-
   output:
     links:
-      - url: {{ '${{ steps.publishCatalogEnvelopeMergeRequest.output.mergeRequestUrl }}' }}
+      - url: ${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}
         title: 'Component merge request'
-      - url: {{ '${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}' }}
-        title: 'Catalog Envelope update merge request'
-  
