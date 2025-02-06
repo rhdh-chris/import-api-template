@@ -123,7 +123,7 @@ spec:
       action: fetch:template
       targetPath: ../.
       input:
-        url: https://${{ parameters.gitlabHost }}/${{ parameters.gitlabOrganization }}/${{ parameters.envelopeRepositoryName }}
+        url: {{ 'https://${{ parameters.gitlabHost }}/${{ parameters.gitlabOrganization }}/${{ parameters.envelopeRepositoryName }}' }}
         
 
     # Step1: Create catalog-info file for the component
@@ -135,18 +135,18 @@ spec:
         targetPath: ./patch
         values:
           applicationType: "API"
-          component_id: ${{ parameters.componentName }}
-          componentName: ${{ parameters.componentName }}
-          componentLifecycle: ${{ parameters.componentLifecycle }}
-          description: ${{ parameters.description }}
-          destination: "${{ parameters.gitlabHost }}/${{ parameters.gitlabOrganization }}/${{ parameters.repositoryName }}"
-          host: ${{ parameters.gitlabHost }}
-          owner: ${{ parameters.componentOwner }}
-          orgName: ${{ parameters.gitlabOrganization }}
-          repoName: ${{ parameters.repositoryName }}
-          system: ${{ parameters.system }}
-          apiType: ${{ parameters.apiType }}
-          apiPathText: ${{ parameters.apiPathText }}
+          component_id: {{ '${{ parameters.componentName }}' }}
+          componentName: {{ '${{ parameters.componentName }}' }}
+          componentLifecycle: {{ '${{ parameters.componentLifecycle }}' }}
+          description: {{ '${{ parameters.description }}' }}
+          destination: {{ '"${{ parameters.gitlabHost }}/${{ parameters.gitlabOrganization }}/${{ parameters.repositoryName }}"' }}
+          host: {{ '${{ parameters.gitlabHost }}' }}
+          owner: {{ '${{ parameters.componentOwner }}' }}
+          orgName: {{ '${{ parameters.gitlabOrganization }}' }}
+          repoName: {{ '${{ parameters.repositoryName }}' }}
+          system: {{ '${{ parameters.system }}' }}
+          apiType: {{ '${{ parameters.apiType }}' }}
+          apiPathText: {{ '${{ parameters.apiPathText }}' }}
 
     
     # Merge catalog-info and techdocs into EXISTING repo   - only EXISTING REPO
@@ -154,15 +154,15 @@ spec:
       name: Open PR with for all-catalog
       action: publish:gitlab:merge-request
       input: 
-        repoUrl: "${{ parameters.gitlabHost }}?repo=${{ parameters.envelopeRepositoryName }}&owner=${{ parameters.gitlabOrganization }}"
+        repoUrl: {{ '"${{ parameters.gitlabHost }}?repo=${{ parameters.envelopeRepositoryName }}&owner=${{ parameters.gitlabOrganization }}"' }}
         title: Open PR with catalog-info.yaml
         description: Open PR with catalog-info.yaml
-        branchName: "${{ parameters.componentName }}-create"
+        branchName: {{ '"${{ parameters.componentName }}-create"' }}
         sourcePath: ./patch
-        targetPath: "./${{ parameters.repositoryName }}"
+        targetPath: {{ '"./${{ parameters.repositoryName }}"' }}
         commitAction: create
         removeSourceBranch: true    
   output:
     links:
-      - url: ${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}
+      - url: {{ '${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}' }}
         title: 'Component merge request'
