@@ -28,9 +28,9 @@ spec:
           title: Gitlab hostname
           type: string
           description: Your gitlab
-          default: {{ gitlab_host }}
+          default: github.com
           enum:
-            - {{ gitlab_host }}
+            - github.com
         gitlabOrganization:
           title: GitLab Organization of Existing API
           type: string
@@ -164,5 +164,5 @@ spec:
         removeSourceBranch: true    
   output:
     links:
-      - url: {{ '${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}' }}
+      - url: "{{ '${{ steps.publishComponentMergeRequest.output.mergeRequestUrl }}' }}"
         title: 'Component merge request'
